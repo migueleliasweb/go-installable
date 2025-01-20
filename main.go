@@ -3,6 +3,8 @@ package main
 import (
 	"fmt"
 	"runtime/debug"
+	"strings"
+	"time"
 )
 
 const unknown = "unknown"
@@ -59,6 +61,21 @@ func versionString() string {
 			if v, found := buildSettingMap["vcs.time"]; found {
 				buildDate = v
 			}
+
+			// This means the installation was done via
+			// `go install @<commit-hash>`
+			if strings.Contains(buildInfo.Main.Version, "v0.0.0") {
+				// E.g: v0.0.0-20250120223854-8161027fbed6
+				//      v0.0.0-build_date-commit_hash
+				mainVersionSplit := strings.Split(buildInfo.Main.Version, "-")
+
+				gitCommit = mainVersionSplit[2]
+
+				if t, err := time.Parse("20060102150405", mainVersionSplit[1]); err != nil {
+					buildDate = t.Format(time.RFC3339)
+					buildDate = buildDate[:len(buildDate)-5]
+				}
+			}
 		}
 	}
 
@@ -74,12 +91,4 @@ func versionString() string {
 
 func main() {
 	fmt.Println(versionString())
-
-	buildInfo, _ := debug.ReadBuildInfo()
-	fmt.Println("deps:", buildInfo.Deps)
-	fmt.Println("goversion:", buildInfo.GoVersion)
-	fmt.Println("main:", buildInfo.Main)
-	fmt.Println("path:", buildInfo.Path)
-	fmt.Println("settings:", buildInfo.Settings)
-	fmt.Println("string:", buildInfo.String())
 }
