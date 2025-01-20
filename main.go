@@ -63,7 +63,7 @@ func versionString() string {
 			}
 
 			// This means the installation was done via
-			// `go install @<commit-hash>`
+			// `go install` pointing to a specific hash with `@<hash>`.
 			if strings.Contains(buildInfo.Main.Version, "v0.0.0") {
 				// E.g: v0.0.0-20250120223854-8161027fbed6
 				//      v0.0.0-build_date-commit_hash
@@ -71,9 +71,8 @@ func versionString() string {
 
 				gitCommit = mainVersionSplit[2]
 
-				if t, err := time.Parse("20060102150405", mainVersionSplit[1]); err != nil {
+				if t, err := time.Parse("20060102150405", mainVersionSplit[1]); err == nil {
 					buildDate = t.Format(time.RFC3339)
-					buildDate = buildDate[:len(buildDate)-5]
 				}
 			}
 		}
