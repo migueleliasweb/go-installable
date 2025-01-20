@@ -55,6 +55,10 @@ func versionString() string {
 			if v, found := buildSettingMap["vcs.revision"]; found {
 				gitCommit = v
 			}
+
+			if v, found := buildSettingMap["vcs.time"]; found {
+				buildDate = v
+			}
 		}
 	}
 
@@ -70,5 +74,12 @@ func versionString() string {
 
 func main() {
 	fmt.Println(versionString())
-	fmt.Println(debug.ReadBuildInfo())
+
+	buildInfo, _ := debug.ReadBuildInfo()
+	fmt.Println("deps:", buildInfo.Deps)
+	fmt.Println("goversion:", buildInfo.GoVersion)
+	fmt.Println("main:", buildInfo.Main)
+	fmt.Println("path:", buildInfo.Path)
+	fmt.Println("settings:", buildInfo.Settings)
+	fmt.Println("string:", buildInfo.String())
 }
