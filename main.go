@@ -70,4 +70,5 @@ func versionString() string {
 
 func main() {
 	fmt.Println(versionString())
+	fmt.Println(debug.ReadBuildInfo())
 }
