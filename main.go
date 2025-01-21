@@ -39,6 +39,19 @@ func buildInfoSettingToMap(settings []debug.BuildSetting) map[string]string {
 	return result
 }
 
+func cleanupBuildDateFromMainVersionSplit(buildDateSplit string) string {
+	buildDatesplit := strings.Split(
+		buildDateSplit,
+		".",
+	)
+
+	if len(buildDatesplit) == 2 {
+		return buildDatesplit[1]
+	}
+
+	return buildDateSplit
+}
+
 // versionString returns the CLI version
 func versionString() string {
 	if myBinVersion == "" {
@@ -66,13 +79,13 @@ func versionString() string {
 
 			// fallback to `.Main.Version`
 			if !gitCommitFound && !vcsTimeFound {
-				// E.g: <semver>-20250120223854-8161027fbed6
-				//      <semver>-<build-date>-<commit-hash>
+				// (usual)		<semver>-<build-date>-<commit-hash>
+				// (sometimes) 	<semver>-<number>.<build-date>-<commit-hash>
 				mainVersionSplit := strings.Split(buildInfo.Main.Version, "-")
 
 				gitCommit = mainVersionSplit[2]
 
-				if t, err := time.Parse("20060102150405", mainVersionSplit[1]); err == nil {
+				if t, err := time.Parse("20060102150405", cleanupBuildDateFromMainVersionSplit(mainVersionSplit[1])); err == nil {
 					buildDate = t.Format(time.RFC3339)
 				}
 			}
