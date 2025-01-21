@@ -113,8 +113,6 @@ func versionString() string {
 }
 
 func main() {
-	fmt.Println(versionString())
-
 	buildInfo, _ := debug.ReadBuildInfo()
 	fmt.Println("deps:", buildInfo.Deps)
 	fmt.Println("goversion:", buildInfo.GoVersion)
@@ -122,4 +120,6 @@ func main() {
 	fmt.Println("path:", buildInfo.Path)
 	fmt.Println("settings:", buildInfo.Settings)
 	fmt.Println("string:", buildInfo.String())
+
+	fmt.Println(versionString())
 }
