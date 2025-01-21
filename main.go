@@ -1,7 +1,9 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
+	"os"
 	"runtime/debug"
 	"strings"
 	"time"
@@ -15,8 +17,7 @@ var (
 	goos                    = ""
 	goarch                  = ""
 	gitCommit               = "" // "$Format:%H$" sha1 from git, output of $(git rev-parse HEAD)
-
-	buildDate = "1970-01-01T00:00:00Z" // build date in ISO8601 format, output of $(date -u +'%Y-%m-%dT%H:%M:%SZ')
+	buildDate               = "" // "1970-01-01T00:00:00Z" build date in ISO8601 format, output of $(date -u +'%Y-%m-%dT%H:%M:%SZ')
 )
 
 // version contains all the information related to the CLI version
@@ -58,6 +59,8 @@ func versionString() string {
 		if buildInfo, ok := debug.ReadBuildInfo(); ok {
 			if buildInfo.Main.Version != "" {
 				myBinVersion = buildInfo.Main.Version
+			} else {
+				myBinVersion = "(devel)"
 			}
 
 			buildSettingMap := buildInfoSettingToMap(buildInfo.Settings)
@@ -78,7 +81,7 @@ func versionString() string {
 			}
 
 			// fallback to `.Main.Version`
-			if !gitCommitFound && !vcsTimeFound {
+			if !gitCommitFound && !vcsTimeFound && buildInfo.Main.Version != "" {
 				// (usual)		<semver>-<build-date>-<commit-hash>
 				// (sometimes) 	<semver>-<number>.<build-date>-<commit-hash>
 				mainVersionSplit := strings.Split(buildInfo.Main.Version, "-")
@@ -92,7 +95,7 @@ func versionString() string {
 		}
 	}
 
-	return fmt.Sprintf("Version: %#v", version{
+	jsonBytes, err := json.Marshal(version{
 		MyBinVersion:     myBinVersion,
 		KubernetesVendor: kubernetesVendorVersion,
 		GitCommit:        gitCommit,
@@ -100,6 +103,13 @@ func versionString() string {
 		GoOs:             goos,
 		GoArch:           goarch,
 	})
+
+	if err != nil {
+		fmt.Println("Err:", err)
+		os.Exit(1)
+	}
+
+	return string(jsonBytes)
 }
 
 func main() {
