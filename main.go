@@ -14,7 +14,7 @@ var (
 	kubernetesVendorVersion = "1.31"
 	goos                    = ""
 	goarch                  = ""
-	gitCommit               = "$Format:%H$" // sha1 from git, output of $(git rev-parse HEAD)
+	gitCommit               = "" // "$Format:%H$" sha1 from git, output of $(git rev-parse HEAD)
 
 	buildDate = "1970-01-01T00:00:00Z" // build date in ISO8601 format, output of $(date -u +'%Y-%m-%dT%H:%M:%SZ')
 )
@@ -52,19 +52,22 @@ func versionString() string {
 			goos = buildSettingMap["GOOS"]
 			goarch = buildSettingMap["GOARCH"]
 
-			if v, found := buildSettingMap["vcs.revision"]; found {
-				gitCommit = v
+			gitCommitValue, gitCommitFound := buildSettingMap["vcs.revision"]
+
+			if gitCommitFound {
+				gitCommit = gitCommitValue
 			}
 
-			if v, found := buildSettingMap["vcs.time"]; found {
-				buildDate = v
+			vcsTimeValue, vcsTimeFound := buildSettingMap["vcs.time"]
+
+			if vcsTimeFound {
+				buildDate = vcsTimeValue
 			}
 
-			// This means the installation was done via
-			// `go install` pointing to a specific hash with `@<hash>`.
-			if strings.Contains(buildInfo.Main.Version, "v0.0.0") {
-				// E.g: v0.0.0-20250120223854-8161027fbed6
-				//      v0.0.0-build_date-commit_hash
+			// fallback to `.Main.Version`
+			if !gitCommitFound && !vcsTimeFound {
+				// E.g: <semver>-20250120223854-8161027fbed6
+				//      <semver>-<build-date>-<commit-hash>
 				mainVersionSplit := strings.Split(buildInfo.Main.Version, "-")
 
 				gitCommit = mainVersionSplit[2]
