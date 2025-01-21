@@ -82,14 +82,22 @@ func versionString() string {
 
 			// fallback to `.Main.Version`
 			if !gitCommitFound && !vcsTimeFound && buildInfo.Main.Version != "" {
-				// (usual)		<semver>-<build-date>-<commit-hash>
-				// (sometimes) 	<semver>-<number>.<build-date>-<commit-hash>
+				// (on tagged releases):	<semver>
+				// (untagged releases):		<semver>-<build-date>-<commit-hash>
+				// (sometimes):				<semver>-<number>.<build-date>-<commit-hash>
 				mainVersionSplit := strings.Split(buildInfo.Main.Version, "-")
 
-				gitCommit = mainVersionSplit[2]
+				if len(mainVersionSplit) == 1 {
+					// buildInfo.Main.Version == sem
+					gitCommit = buildInfo.Main.Version
+				}
 
-				if t, err := time.Parse("20060102150405", cleanupBuildDateFromMainVersionSplit(mainVersionSplit[1])); err == nil {
-					buildDate = t.Format(time.RFC3339)
+				if len(mainVersionSplit) == 3 {
+					gitCommit = mainVersionSplit[2]
+
+					if t, err := time.Parse("20060102150405", cleanupBuildDateFromMainVersionSplit(mainVersionSplit[1])); err == nil {
+						buildDate = t.Format(time.RFC3339)
+					}
 				}
 			}
 		}
