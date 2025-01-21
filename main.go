@@ -7,15 +7,13 @@ import (
 	"time"
 )
 
-const unknown = "unknown"
-
 // var needs to be used instead of const as ldflags is used to fill this
 // information in the release process
 var (
-	myBinVersion            = unknown
+	myBinVersion            = ""
 	kubernetesVendorVersion = "1.31"
-	goos                    = unknown
-	goarch                  = unknown
+	goos                    = ""
+	goarch                  = ""
 	gitCommit               = "$Format:%H$" // sha1 from git, output of $(git rev-parse HEAD)
 
 	buildDate = "1970-01-01T00:00:00Z" // build date in ISO8601 format, output of $(date -u +'%Y-%m-%dT%H:%M:%SZ')
@@ -23,15 +21,15 @@ var (
 
 // version contains all the information related to the CLI version
 type version struct {
-	MyBinVersion     string `json:"myBinVersion"`
-	KubernetesVendor string `json:"kubernetesVendor"`
-	GitCommit        string `json:"gitCommit"`
-	BuildDate        string `json:"buildDate"`
-	GoOs             string `json:"goOs"`
-	GoArch           string `json:"goArch"`
+	MyBinVersion     string `json:"myBinVersion,omitempty"`
+	KubernetesVendor string `json:"kubernetesVendor,omitempty"`
+	GitCommit        string `json:"gitCommit,omitempty"`
+	BuildDate        string `json:"buildDate,omitempty"`
+	GoOs             string `json:"goOs,omitempty"`
+	GoArch           string `json:"goArch,omitempty"`
 }
 
-func buildInfoSettingTpMap(settings []debug.BuildSetting) map[string]string {
+func buildInfoSettingToMap(settings []debug.BuildSetting) map[string]string {
 	result := map[string]string{}
 
 	for _, settingValue := range settings {
@@ -43,13 +41,13 @@ func buildInfoSettingTpMap(settings []debug.BuildSetting) map[string]string {
 
 // versionString returns the CLI version
 func versionString() string {
-	if myBinVersion == unknown {
+	if myBinVersion == "" {
 		if buildInfo, ok := debug.ReadBuildInfo(); ok {
 			if buildInfo.Main.Version != "" {
 				myBinVersion = buildInfo.Main.Version
 			}
 
-			buildSettingMap := buildInfoSettingTpMap(buildInfo.Settings)
+			buildSettingMap := buildInfoSettingToMap(buildInfo.Settings)
 
 			goos = buildSettingMap["GOOS"]
 			goarch = buildSettingMap["GOARCH"]
@@ -79,23 +77,23 @@ func versionString() string {
 	}
 
 	return fmt.Sprintf("Version: %#v", version{
-		myBinVersion,
-		kubernetesVendorVersion,
-		gitCommit,
-		buildDate,
-		goos,
-		goarch,
+		MyBinVersion:     myBinVersion,
+		KubernetesVendor: kubernetesVendorVersion,
+		GitCommit:        gitCommit,
+		BuildDate:        buildDate,
+		GoOs:             goos,
+		GoArch:           goarch,
 	})
 }
 
 func main() {
 	fmt.Println(versionString())
 
-	buildInfo, _ := debug.ReadBuildInfo()
-	fmt.Println("deps:", buildInfo.Deps)
-	fmt.Println("goversion:", buildInfo.GoVersion)
-	fmt.Println("main:", buildInfo.Main)
-	fmt.Println("path:", buildInfo.Path)
-	fmt.Println("settings:", buildInfo.Settings)
-	fmt.Println("string:", buildInfo.String())
+	// buildInfo, _ := debug.ReadBuildInfo()
+	// fmt.Println("deps:", buildInfo.Deps)
+	// fmt.Println("goversion:", buildInfo.GoVersion)
+	// fmt.Println("main:", buildInfo.Main)
+	// fmt.Println("path:", buildInfo.Path)
+	// fmt.Println("settings:", buildInfo.Settings)
+	// fmt.Println("string:", buildInfo.String())
 }
