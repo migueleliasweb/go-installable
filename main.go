@@ -9,8 +9,6 @@ import (
 	"time"
 )
 
-// var needs to be used instead of const as ldflags is used to fill this
-// information in the release process
 var (
 	myBinVersion            = ""
 	kubernetesVendorVersion = "1.31"
@@ -82,13 +80,14 @@ func versionString() string {
 
 			// fallback to `.Main.Version`
 			if !gitCommitFound && !vcsTimeFound && buildInfo.Main.Version != "" {
-				// (on tagged releases):	<semver>
-				// (untagged releases):		<semver>-<build-date>-<commit-hash>
-				// (sometimes):				<semver>-<number>.<build-date>-<commit-hash>
+				// Note about "buildInfo.Main.Version" possible values:
+				// (on tagged release): 		E.g `go install <repo>@v1.0.2` = "<semver>"
+				// (untagged commit): 			E.g `go install <repo>@<commit-hash>` = "<semver>-<build-date>-<commit-hash>"
+				// (repos without any tags):	E.g `go install <repo>@<commit-hash>` = "<semver>-<number>.<build-date>-<commit-hash>"
 				mainVersionSplit := strings.Split(buildInfo.Main.Version, "-")
 
 				if len(mainVersionSplit) == 1 {
-					// buildInfo.Main.Version == sem
+					// buildInfo.Main.Version == semver
 					gitCommit = buildInfo.Main.Version
 				}
 
@@ -121,13 +120,13 @@ func versionString() string {
 }
 
 func main() {
-	buildInfo, _ := debug.ReadBuildInfo()
-	fmt.Println("deps:", buildInfo.Deps)
-	fmt.Println("goversion:", buildInfo.GoVersion)
-	fmt.Println("main:", buildInfo.Main)
-	fmt.Println("path:", buildInfo.Path)
-	fmt.Println("settings:", buildInfo.Settings)
-	fmt.Println("string:", buildInfo.String())
+	// buildInfo, _ := debug.ReadBuildInfo()
+	// fmt.Println("deps:", buildInfo.Deps)
+	// fmt.Println("goversion:", buildInfo.GoVersion)
+	// fmt.Println("main:", buildInfo.Main)
+	// fmt.Println("path:", buildInfo.Path)
+	// fmt.Println("settings:", buildInfo.Settings)
+	// fmt.Println("string:", buildInfo.String())
 
 	fmt.Println(versionString())
 }
