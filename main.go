@@ -58,7 +58,7 @@ func versionString() string {
 			if buildInfo.Main.Version != "" {
 				myBinVersion = buildInfo.Main.Version
 			} else {
-				myBinVersion = "(devel)"
+				myBinVersion = "unknown"
 			}
 
 			buildSettingMap := buildInfoSettingToMap(buildInfo.Settings)
