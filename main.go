@@ -82,8 +82,8 @@ func versionString() string {
 			if !gitCommitFound && !vcsTimeFound && buildInfo.Main.Version != "" {
 				// Note about "buildInfo.Main.Version" possible values:
 				// (on tagged release): 		E.g `go install <repo>@v1.0.2` = "<semver>"
-				// (untagged commit): 			E.g `go install <repo>@<commit-hash>` = "<semver>-<build-date>-<commit-hash>"
-				// (repos without any tags):	E.g `go install <repo>@<commit-hash>` = "<semver>-<number>.<build-date>-<commit-hash>"
+				// (untagged commit): 			E.g `go install <repo>@<commit-hash>` => "<semver>-<build-date>-<commit-hash>"
+				// (repos without any tags):	E.g `go install <repo>` => "<semver>-<number>.<build-date>-<commit-hash>"
 				mainVersionSplit := strings.Split(buildInfo.Main.Version, "-")
 
 				if len(mainVersionSplit) == 1 {
